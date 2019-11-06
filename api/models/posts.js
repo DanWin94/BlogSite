@@ -7,7 +7,12 @@ const postSchema = mongoose.Schema({
     postID: mongoose.Schema.Types.ObjectId,
     createdBy: String,
     date: String,
-    comments: Array[Comment]
+  /*  comments: Array[{
+        commentBody: String,
+        commentedBy: String,
+        commentID: mongoose.Schema.Types.ObjectId,
+        date: String
+    }]*/
 });
 
 module.exports = mongoose.model('Post', postSchema);

@@ -10,6 +10,23 @@ router.get('/',(req, res, next) => {
     });
 });
 
+router.post('/',(req, res, next) => {
+    const comment = new Comment({
+        commentBody: req.body.title,
+        commentedBy: req.body.description,
+        commentID: new mongoose.Types.ObjectId,
+        date: req.body.date
+    });
+    comment.save().then(result => {
+        console.log(result);
+    })
+    .catch(err => comsole.log(err));
+    res.status(201).json({
+        message:'comment was posted',
+        comment:comment
+    });
+});
+
 router.get('/:commentID',(req, res, next) => {
     const id = req.params.commentID;
     if(id ==='special'){

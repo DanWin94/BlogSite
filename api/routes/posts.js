@@ -17,7 +17,12 @@ router.post('/',(req, res, next) => {
         postID: new mongoose.Types.ObjectId,
         createdBy: req.body.createdBy,
         date: req.body.date,
-        comments: [Comment]
+       /* comments: req.body.comments[{
+            commentBody: req.body.commentBody,
+            commentedBy: req.body.commentedBy,
+            commentID: new mongoose.Types.ObjectId,
+            date: req.body.date
+        }]*/
         
     });
     post.save().then(result => {
