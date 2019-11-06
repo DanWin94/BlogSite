@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Post  = require('../models/posts');
+const Comment  = require('../models/comments');
 
 router.get('/',(req, res, next) => {
     res.status(200).json({
@@ -15,7 +16,9 @@ router.post('/',(req, res, next) => {
         description: req.body.description,
         postID: new mongoose.Types.ObjectId,
         createdBy: req.body.createdBy,
-        date: req.body.date
+        date: req.body.date,
+        comments: [Comment]
+        
     });
     post.save().then(result => {
         console.log(result);
@@ -81,4 +84,4 @@ router.delete('/:postID',(req,res,next) => {
 });
 
 
-module.exports =router;
+module.exports = router;

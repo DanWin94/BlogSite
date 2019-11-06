@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const postRoutes = require('./api/routes/posts');
 const userRoutes = require('./api/routes/users');
+const commentRoutes = require('./api/routes/comments');
 
 //connects to MongoAtlas cluster, password located in "nodemon.json" file
 mongoose.connect('mongodb+srv://dtran94:' + process.env.MONGO_ATLAS_PW + '@cluster0-irsh5.azure.mongodb.net/test?retryWrites=true&w=majority',
@@ -34,6 +35,7 @@ app.use((req,res, next) => {
 
 app.use('/posts', postRoutes);
 app.use('/users', userRoutes);
+app.use('/comments', commentRoutes);
 
 
 //used for error handling
