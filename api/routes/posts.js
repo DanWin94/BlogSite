@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Post  = require('../models/posts');
-const Comment  = require('../models/comments');
 
 router.get('/',(req, res, next) => {
     res.status(200).json({
@@ -10,83 +9,108 @@ router.get('/',(req, res, next) => {
     });
 });
 
-router.post('/',(req, res, next) => {
-    const post = new Post({
-        title: req.body.title,
-        description: req.body.description,
-        postID: new mongoose.Types.ObjectId,
-        createdBy: req.body.createdBy,
-        date: req.body.date,
-       /* comments: req.body.comments[{
-            commentBody: req.body.commentBody,
-            commentedBy: req.body.commentedBy,
-            commentID: new mongoose.Types.ObjectId,
-            date: req.body.date
-        }]*/
-        
-    });
-    post.save().then(result => {
-        console.log(result);
-    })
-    .catch(err => comsole.log(err));
-    res.status(201).json({
-        message:'new post was created',
-        post: post
-    });
-});
+router.post('/',(req, res) => {
+    const body = req.body
 
-router.get('/:postID',(req, res, next) => {
-    const id = req.params.postID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'post was detected and retrieved',
-        id: id
-        });
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a post',
+        })
     }
-    else{
-    res.status(200).json({
-        message:'post was not found'
-        });
-    }
-});
 
-router.post('/:postID',(req, res, next) => {
-    const id = req.params.postID;
-    res.status(201).json({
-        message:'postID was entered into database',
-        id: id
-        });
+    const newPost = new Post(body)
+
+    if (!newPost) {
+        return res.status(400).json({ success: false, error: err })
+    }
+
+    newPost
+        .save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                id: newPost._id,
+                message: 'Post Added to database',
+            })
+        })
+        .catch(error => {
+            return res.status(400).json({
+                error,
+                message: 'Post not created!',
+            })
+        })
 })
 
-router.patch('/:postID',(req, res, next) => {
-    const id = req.params.postID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'post was was found and updated',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'Post was not found to be updated'
-        });
-    }
-});
 
-router.delete('/:postID',(req,res,next) => {
-    const id = req.params.postID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'post was detected and deleted',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'postID was not detected and could not be deleted'
-        });
-    }
-});
+router.get('/:postID',async (req, res) => {
+    await Post.findOne({ _id: req.params.postID }, (err, post) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
 
+        if (!post) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Post not found` })
+        }
+        return res.status(200).json({ success: true, data: post })
+    }).catch(err => console.log(err))
+}
+)
+
+router.put('/:postID', async(req, res) => {
+    const body = req.body
+
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a body to update',
+        })
+    }
+
+    Post.findById({ _id: req.params.postID }, (err, post) => {
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Post not found!',
+            })
+        }
+        post.title = body.title
+        post.description = body.description
+        post.createdBy = body.createdBy
+        post
+            .save()
+            .then(() => {
+                return res.status(200).json({
+                    success: true,
+                    id: post._id,
+                    message: 'Post updated!',
+                })
+            })
+            .catch(error => {
+                return res.status(404).json({
+                    error,
+                    message: 'Post not updated!',
+                })
+            })
+    })
+})
+
+router.delete('/:postID', async(req,res) => {
+    await Post.findOneAndDelete({ _id: req.params.postID }, (err, post) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!post) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Post not found` })
+        }
+        return res.status(200).json({ success: true, message:'Post found and deleted' })
+    }).catch(err => console.log(err))
+}
+)
 
 module.exports = router;
