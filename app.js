@@ -4,14 +4,15 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
+require('dotenv').config();
+
 const postRoutes = require('./api/routes/posts');
 const userRoutes = require('./api/routes/users');
 const commentRoutes = require('./api/routes/comments');
-const url = 'mongodb://127.0.0.1:27017/testDB'
-//const url = 'mongodb+srv://dtran94:' + process.env.MONGO_ATLAS_PW + '@cluster0-irsh5.azure.mongodb.net/test?retryWrites=true&w=majority'
+const url = 'mongodb+srv://jpdReactDB:' + process.env.MONGO_DB_PASSWORD +'@reactcluster-stgpr.azure.mongodb.net/apiCollections?retryWrites=true&w=majority'
 
 
-//connects to MongoAtlas cluster, password located in "nodemon.json" file
+//connects to MongoAtlas cluster, password located in local .env file not commited to git. 
 
 mongoose.connect(url,
 {
