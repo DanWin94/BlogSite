@@ -43,9 +43,7 @@ router.post('/',(req, res) => {
         })
 })
 
-router.get('/:commentID', 
-
-async (req, res) => {
+router.get('/:commentID', async (req, res) => {
     await Comment.findOne({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -61,25 +59,46 @@ async (req, res) => {
 }
 )
 
-router.patch('/:commentID',(req, res, next) => {
-    const id = req.params.comentID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'comment was was found and updated',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'comment was not found to be updated'
-        });
-    }
-});
+router.put('/:commentID', async (req, res) => {
+    const body = req.body
 
-router.delete('/:commentID',
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a body to update',
+        })
+    }
 
-async (req, res) => {
-    await Comment.delete({ _id: req.params.commentID }, (err, comment) => {
+    Comment.findOne({ _id: req.params.id }, (err, comment) => {
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Movie not found!',
+            })
+        }
+        comment.commentBody = body.commentBody
+        comment.commentedBy = body.commentedBy
+        
+        comment
+            .save()
+            .then(() => {
+                return res.status(200).json({
+                    success: true,
+                    id: movie._id,
+                    message: 'Comment updated!',
+                })
+            })
+            .catch(error => {
+                return res.status(404).json({
+                    error,
+                    message: 'Comment not updated!',
+                })
+            })
+    })
+})
+
+router.delete('/:commentID',async (req, res) => {
+    await Comment.findOneAndDelete({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
@@ -93,7 +112,5 @@ async (req, res) => {
     }).catch(err => console.log(err))
 }
 )
-
-
 
 module.exports = router;
