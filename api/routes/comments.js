@@ -84,20 +84,23 @@ router.patch('/:commentID',(req, res, next) => {
     }
 });
 
-router.delete('/:commentID',(req,res,next) => {
-    const id = req.params.commentID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'comment was detected and deleted',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'comment was not detected and could not be deleted'
-        });
-    }
-});
+router.delete('/:commentID',
+
+async (req, res) => {
+    await Comment.delete({ _id: req.params.commentID }, (err, comment) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!comment) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Comment not found` })
+        }
+        return res.status(200).json({ success: true, message:'Comment found and deleted' })
+    }).catch(err => console.log(err))
+}
+)
 
 
 
