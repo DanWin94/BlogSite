@@ -1,10 +1,11 @@
 const mongoose =  require('mongoose');
 
+
 const commentSchema = mongoose.Schema({
-    commentBody: String,
-    commentedBy: String,
-    commentID: mongoose.Schema.Types.ObjectId,
-    date: String
-});
+    commentBody: { type: String, required: true },
+    commentedBy: { type: String, required: true },
+    },
+     { timestamps: true },
+);
 
 module.exports = mongoose.model('Comment', commentSchema);

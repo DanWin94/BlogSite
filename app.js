@@ -7,13 +7,26 @@ const mongoose = require('mongoose');
 const postRoutes = require('./api/routes/posts');
 const userRoutes = require('./api/routes/users');
 const commentRoutes = require('./api/routes/comments');
+const url = 'mongodb://127.0.0.1:27017/testDB'
+//const url = 'mongodb+srv://dtran94:' + process.env.MONGO_ATLAS_PW + '@cluster0-irsh5.azure.mongodb.net/test?retryWrites=true&w=majority'
+
 
 //connects to MongoAtlas cluster, password located in "nodemon.json" file
-mongoose.connect('mongodb+srv://dtran94:' + process.env.MONGO_ATLAS_PW + '@cluster0-irsh5.azure.mongodb.net/test?retryWrites=true&w=majority',
+
+mongoose.connect(url,
 {
     useNewUrlParser: true
 }
 );
+
+const db = mongoose.connection
+db.once('open', _ => {
+  console.log('Database connected:', url)
+})
+
+db.on('error', err => {
+  console.error('connection error:', err)
+})
 
 //used to log HTTP request information
 app.use(morgan('dev'));
