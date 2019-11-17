@@ -9,78 +9,110 @@ router.get('/',(req, res, next) => {
     });
 });
 
-router.post('/',(req, res, next) => {
-    const user =new User({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            password: req.body.password,
-            userID: req.body.userID,
-            email: req.body.email,
-            memberID: new mongoose.Types.ObjectId
-    });
-    user.save().then(result => {
-        console.log(result);
-    })
-    .catch(err => console.log(err));
+router.post('/',(req, res) => {
+    const body = req.body
 
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a user',
+        })
+    }
 
-    res.status(201).json({
-        message:'new user was created',
-        user: user
-    });
-});
+    const newUser = new User(body)
+
+    if (!newUser) {
+        return res.status(400).json({ success: false, error: err })
+    }
+
+    newUser
+        .save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                id: newUser._id,
+                message: 'New User Added to database',
+            })
+        })
+        .catch(error => {
+            return res.status(400).json({
+                error,
+                message: 'User not created!',
+            })
+        })
+})
 //
-router.get('/:userID',(req, res, next) => {
-    const id = req.params.userID;
-    if(id ==='user1'){
-    res.status(200).json({
-        message:'Specific user was found and returned',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'user was not found'
-        });
-    }
-});
+router.get('/:userID', async(req, res) => {
+    await User.findOne({ _id: req.params.userID }, (err, user) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
 
-router.post('/:userID',(req, res, next) => {
-    const id = req.params.userID;
-    res.status(201).json({
-        message:'userID was entered into database',
-        id: id
-        });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ success: false, error: `User not found` })
+        }
+        return res.status(200).json({ success: true, data: user })
+    }).catch(err => console.log(err))
+}
+)
+
+router.put('/:userID', async(req, res) => {
+    const body = req.body
+
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a user to update',
+        })
+    }
+
+    User.findById({ _id: req.params.userID }, (err, user) => {
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'User not found!',
+            })
+        }
+        user.firstName = body.firstName
+        user.lastName = body.lastName
+        user.userID = body.userID
+        user.password = body.password
+        user.email = body.email
+        
+        user
+            .save()
+            .then(() => {
+                return res.status(200).json({
+                    success: true,
+                    id: user._id,
+                    message: 'User updated!',
+                })
+            })
+            .catch(error => {
+                return res.status(404).json({
+                    error,
+                    message: 'User not updated!',
+                })
+            })
+    })
 })
 
-router.patch('/:userID',(req, res, next) => {
-    const id = req.params.userID;
-    if(id ==='user1'){
-    res.status(200).json({
-        message:'user was was found and updated',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'user was not found to be updated'
-        });
-    }
-});
+router.delete('/:userID', async(req, res) => {
+    await User.findOneAndDelete({ _id: req.params.userID }, (err, user) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
 
-router.delete('/:userID',(req, res, next) => {
-    const id = req.params.userID;
-    if(id ==='user1'){
-    res.status(200).json({
-        message:'user was detected and deleted',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'user was not detected and could not be deleted'
-        });
-    }
-});
+        if (!user) {
+            return res
+                .status(404)
+                .json({ success: false, error: `User not found` })
+        }
+        return res.status(200).json({ success: true, message:'User found and deleted' })
+    }).catch(err => console.log(err))
+}
+)
   
 module.exports = router;
