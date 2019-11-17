@@ -69,11 +69,11 @@ router.put('/:commentID', async (req, res) => {
         })
     }
 
-    Comment.findOne({ _id: req.params.id }, (err, comment) => {
+    Comment.findById({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
             return res.status(404).json({
                 err,
-                message: 'Movie not found!',
+                message: 'Comment not found!',
             })
         }
         comment.commentBody = body.commentBody
@@ -84,7 +84,7 @@ router.put('/:commentID', async (req, res) => {
             .then(() => {
                 return res.status(200).json({
                     success: true,
-                    id: movie._id,
+                    id: comment._id,
                     message: 'Comment updated!',
                 })
             })
