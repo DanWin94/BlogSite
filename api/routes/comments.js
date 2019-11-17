@@ -61,14 +61,6 @@ async (req, res) => {
 }
 )
 
-router.post('/:commentID',(req, res, next) => {
-    const id = req.params.commentID;
-    res.status(201).json({
-        message:'comment was entered into database',
-        id: id
-        });
-})
-
 router.patch('/:commentID',(req, res, next) => {
     const id = req.params.comentID;
     if(id ==='special'){
