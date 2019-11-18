@@ -6,6 +6,7 @@ const mongoose =  require('mongoose');
 const commentSchema = mongoose.Schema({
     commentBody: { type: String, required: true },
     commentedBy: { type: String, required: true },
+    fromPost: {type: String, required: true}
     },
      { timestamps: true },
 );

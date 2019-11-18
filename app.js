@@ -10,20 +10,21 @@ const postRoutes = require('./api/routes/posts');
 const userRoutes = require('./api/routes/users');
 const commentRoutes = require('./api/routes/comments');
 
-const url = 'mongodb+srv://jpdReactDB:' + process.env.MONGO_DB_PASSWORD +'@reactcluster-stgpr.azure.mongodb.net/apiCollections?retryWrites=true&w=majority'
-
+const Url = 'mongodb+srv://jpdReactDB:' + process.env.MONGO_DB_PASSWORD +'@reactcluster-stgpr.azure.mongodb.net/apiCollections?retryWrites=true&w=majority';
+const localUrl ='mongodb://localhost:27017/BlogSiteAPI';
 
 //connects to MongoAtlas cluster, password located in local .env file not commited to git. 
 
-mongoose.connect(url,
+mongoose.connect(localUrl,
 {
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 }
 );
 
 const db = mongoose.connection
 db.once('open', _ => {
-  console.log('Database connected:', url)
+  console.log('Database connected:', localUrl)
 })
 
 db.on('error', err => {

@@ -3,12 +3,24 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User  = require('../models/users');
 
-router.get('/',(req, res, next) => {
-    res.status(200).json({
-        message:'Handling GET request to /users'
-    });
+// 1-Return all users
+router.get('/', async (req, res, next) => {
+
+    await User.find({ }, (err, user) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!user) {
+            return res
+                .status(404)
+                .json({ success: false, error: `User not found` })
+        }
+        return res.status(200).json({ success: true, data: user })
+    }).catch(err => console.log(err))
 });
 
+//2-POST new user
 router.post('/',(req, res) => {
     const body = req.body
 
@@ -41,9 +53,10 @@ router.post('/',(req, res) => {
             })
         })
 })
-//
+
+//3-return userwith certain userID
 router.get('/:userID', async(req, res) => {
-    await User.findOne({ _id: req.params.userID }, (err, user) => {
+    await User.findOne({ userID: req.params.userID }, (err, user) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
@@ -58,6 +71,24 @@ router.get('/:userID', async(req, res) => {
 }
 )
 
+//4-return user with certain object ID
+router.get('/userIDN/:_id', async(req, res) => {
+    await User.findOne({ _id: req.params._id}, (err, user) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!user) {
+            return res
+                .status(404)
+                .json({ success: false, error: `User not found` })
+        }
+        return res.status(200).json({ success: true, data: user })
+    }).catch(err => console.log(err))
+}
+)
+
+//6-updating user info
 router.put('/:userID', async(req, res) => {
     const body = req.body
 
@@ -99,6 +130,7 @@ router.put('/:userID', async(req, res) => {
     })
 })
 
+//7-deleting user with certain userID
 router.delete('/:userID', async(req, res) => {
     await User.findOneAndDelete({ _id: req.params.userID }, (err, user) => {
         if (err) {

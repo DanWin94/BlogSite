@@ -3,13 +3,14 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Comment  = require('../models/comments');
 
-
+//1 get all
 router.get('/',(req, res, next) => {
     res.status(200).json({
         message:'Handling GET request to /comments'
     });
 });
 
+//2-post
 router.post('/',(req, res) => {
     const body = req.body
 
@@ -43,6 +44,7 @@ router.post('/',(req, res) => {
         })
 })
 
+//3-get by id
 router.get('/:commentID', async (req, res) => {
     await Comment.findOne({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
@@ -59,6 +61,7 @@ router.get('/:commentID', async (req, res) => {
 }
 )
 
+//4-update
 router.put('/:commentID', async (req, res) => {
     const body = req.body
 
@@ -97,6 +100,8 @@ router.put('/:commentID', async (req, res) => {
     })
 })
 
+
+//5-delete
 router.delete('/:commentID',async (req, res) => {
     await Comment.findOneAndDelete({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
