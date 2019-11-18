@@ -9,6 +9,7 @@ require('dotenv').config();
 const postRoutes = require('./api/routes/posts');
 const userRoutes = require('./api/routes/users');
 const commentRoutes = require('./api/routes/comments');
+
 const url = 'mongodb+srv://jpdReactDB:' + process.env.MONGO_DB_PASSWORD +'@reactcluster-stgpr.azure.mongodb.net/apiCollections?retryWrites=true&w=majority'
 
 

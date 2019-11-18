@@ -79,7 +79,6 @@ router.put('/:postID', async(req, res) => {
         post.title = body.title
         post.description = body.description
         post.createdBy = body.createdBy
-        post
             .save()
             .then(() => {
                 return res.status(200).json({
