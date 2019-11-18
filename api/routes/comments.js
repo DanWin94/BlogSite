@@ -10,76 +10,107 @@ router.get('/',(req, res, next) => {
     });
 });
 
-router.post('/',(req, res, next) => {
-    const comment = new Comment({
-        commentBody: req.body.title,
-        commentedBy: req.body.description,
-        commentID: new mongoose.Types.ObjectId,
-        date: req.body.date
-    });
-    comment.save().then(result => {
-        console.log(result);
-    })
-    .catch(err => comsole.log(err));
-    res.status(201).json({
-        message:'comment was posted',
-        comment:comment
-    });
-});
+router.post('/',(req, res) => {
+    const body = req.body
 
-router.get('/:commentID',(req, res, next) => {
-    const id = req.params.commentID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'comment was detected and retrieved',
-        id: id
-        });
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a comment',
+        })
     }
-    else{
-    res.status(200).json({
-        message:'comment was not found'
-        });
-    }
-});
 
-router.post('/:commentID',(req, res, next) => {
-    const id = req.params.commentID;
-    res.status(201).json({
-        message:'comment was entered into database',
-        id: id
-        });
+    const newComment = new Comment(body)
+
+    if (!newComment) {
+        return res.status(400).json({ success: false, error: err })
+    }
+
+    newComment
+        .save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                id: newComment._id,
+                message: 'Comment Added to database',
+            })
+        })
+        .catch(error => {
+            return res.status(400).json({
+                error,
+                message: 'Comment not created!',
+            })
+        })
 })
 
-router.patch('/:commentID',(req, res, next) => {
-    const id = req.params.comentID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'comment was was found and updated',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'comment was not found to be updated'
-        });
-    }
-});
+router.get('/:commentID', async (req, res) => {
+    await Comment.findOne({ _id: req.params.commentID }, (err, comment) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
 
-router.delete('/:commentID',(req,res,next) => {
-    const id = req.params.commentID;
-    if(id ==='special'){
-    res.status(200).json({
-        message:'comment was detected and deleted',
-        id: id
-        });
-    }
-    else{
-    res.status(200).json({
-        message:'comment was not detected and could not be deleted'
-        });
-    }
-});
+        if (!comment) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Comment not found` })
+        }
+        return res.status(200).json({ success: true, data: comment })
+    }).catch(err => console.log(err))
+}
+)
 
+router.put('/:commentID', async (req, res) => {
+    const body = req.body
 
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a body to update',
+        })
+    }
+
+    Comment.findById({ _id: req.params.commentID }, (err, comment) => {
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Comment not found!',
+            })
+        }
+        comment.commentBody = body.commentBody
+        comment.commentedBy = body.commentedBy
+        
+        comment
+            .save()
+            .then(() => {
+                return res.status(200).json({
+                    success: true,
+                    id: comment._id,
+                    message: 'Comment updated!',
+                })
+            })
+            .catch(error => {
+                return res.status(404).json({
+                    error,
+                    message: 'Comment not updated!',
+                })
+            })
+    })
+})
+
+router.delete('/:commentID',async (req, res) => {
+    await Comment.findOneAndDelete({ _id: req.params.commentID }, (err, comment) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!comment) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Comment not found` })
+        }
+        return res.status(200).json({ success: true, message:'Comment found and deleted' })
+    }).catch(err => console.log(err))
+}
+)
 
 module.exports = router;
