@@ -5,9 +5,9 @@ const postSchema = mongoose.Schema({
     description: { type: String, required: true },
     createdBy: { type: String, required: true },
 
-    Tags:[{
-        tagValue: {type: String, required: false}
-    }],
+    Tags:{
+        tagValue: {type: [String], required: false}
+    },
     Category: {
         type: [String],
         required: true,

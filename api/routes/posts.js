@@ -3,12 +3,39 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Post  = require('../models/posts');
 
-router.get('/',(req, res, next) => {
-    res.status(200).json({
-        message:'Handling GET request to /posts'
-    });
+//1-returns all comments in DB
+router.get('/',async (req, res, next) => {
+    await Post.find({}, (err, posts) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!posts) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Collection is empty` })
+        }
+        return res.status(200).json({ success: true, data: posts })
+    }).catch(err => console.log(err))
 });
 
+//2- return all post by certain username
+router.get('/:createdBy', async (req, res, next) => {
+    await Post.find({ createdBy: req.params.createdBy }, (err, posts) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!posts) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Collection is empty` })
+        }
+        return res.status(200).json({ success: true, data: posts })
+    }).catch(err => console.log(err))
+});
+
+//3-creates new post
 router.post('/',(req, res) => {
     const body = req.body
 
@@ -42,7 +69,7 @@ router.post('/',(req, res) => {
         })
 })
 
-
+//4-gets post with certain post object ID
 router.get('/:postID',async (req, res) => {
     await Post.findOne({ _id: req.params.postID }, (err, post) => {
         if (err) {
@@ -59,6 +86,7 @@ router.get('/:postID',async (req, res) => {
 }
 )
 
+//5-updates post certain by post objectID
 router.put('/:postID', async(req, res) => {
     const body = req.body
 
@@ -96,6 +124,7 @@ router.put('/:postID', async(req, res) => {
     })
 })
 
+//7-deletes certain psot through ID
 router.delete('/:postID', async(req,res) => {
     await Post.findOneAndDelete({ _id: req.params.postID }, (err, post) => {
         if (err) {

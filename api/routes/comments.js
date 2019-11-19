@@ -4,10 +4,19 @@ const mongoose = require('mongoose');
 const Comment  = require('../models/comments');
 
 //1 get all
-router.get('/',(req, res, next) => {
-    res.status(200).json({
-        message:'Handling GET request to /comments'
-    });
+router.get('/',async (req, res, next) => {
+    await Comment.find({}, (err, comments) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        if (!comments) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Collection is empty` })
+        }
+        return res.status(200).json({ success: true, data: comments })
+    }).catch(err => console.log(err))
 });
 
 //2-post

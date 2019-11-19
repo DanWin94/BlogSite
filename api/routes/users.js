@@ -6,17 +6,17 @@ const User  = require('../models/users');
 // 1-Return all users
 router.get('/', async (req, res, next) => {
 
-    await User.find({ }, (err, user) => {
+    await User.find({}, (err, users) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
 
-        if (!user) {
+        if (!users) {
             return res
                 .status(404)
-                .json({ success: false, error: `User not found` })
+                .json({ success: false, error: `Collection is empty` })
         }
-        return res.status(200).json({ success: true, data: user })
+        return res.status(200).json({ success: true, data: users })
     }).catch(err => console.log(err))
 });
 
@@ -54,7 +54,7 @@ router.post('/',(req, res) => {
         })
 })
 
-//3-return userwith certain userID
+//3-return user with certain userID
 router.get('/:userID', async(req, res) => {
     await User.findOne({ userID: req.params.userID }, (err, user) => {
         if (err) {
@@ -88,50 +88,52 @@ router.get('/userIDN/:_id', async(req, res) => {
 }
 )
 
-//6-updating user info
-router.put('/:userID', async(req, res) => {
-    const body = req.body
+//6-updating user info with certain object id
+router.patch('/:userID', (req, res) => {
+    const body1 = req.body
+    const updateOps = {};
+    for(const ops of req.body){
+        updateOps[ops.propName]=ops.value;
+    }
 
-    if (!body) {
+    if (!body1) {
         return res.status(400).json({
             success: false,
             error: 'You must provide a user to update',
         })
     }
 
-    User.findById({ _id: req.params.userID }, (err, user) => {
+   User.update({ _id: req.params.userID },{$set:updateOps/*{
+        "firstName": req.body.firstName,
+        "lastName": req.body.lastName,
+        "userID": req.body.userID,
+        "password": req.body.password,
+        "email": req.body.email
+    }*/}, (err) => {
         if (err) {
+            console.log(err);
             return res.status(404).json({
                 err,
                 message: 'User not found!',
             })
-        }
-        user.firstName = body.firstName
-        user.lastName = body.lastName
-        user.userID = body.userID
-        user.password = body.password
-        user.email = body.email
-        
-        user
-            .save()
-            .then(() => {
-                return res.status(200).json({
-                    success: true,
-                    id: user._id,
-                    message: 'User updated!',
-                })
-            })
-            .catch(error => {
-                return res.status(404).json({
-                    error,
-                    message: 'User not updated!',
-                })
-            })
+        }       
+    }).exec().then(() => {
+        return res.status(200).json({
+            success: true,
+            message: 'User updated!',
+        })
+    })
+    .catch(error => {
+        console.log(error);
+        return res.status(404).json({
+            error,
+            message: 'User not updated!',
+        })
     })
 })
 
 //7-deleting user with certain userID
-router.delete('/:userID', async(req, res) => {
+router.delete('/:userID', async (req, res) => {
     await User.findOneAndDelete({ _id: req.params.userID }, (err, user) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
