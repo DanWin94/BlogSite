@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Comment  = require('../models/comments');
 
-//1 get all
+//1-get all comments 
 router.get('/',async (req, res, next) => {
     await Comment.find({}, (err, comments) => {
         if (err) {
@@ -19,7 +19,7 @@ router.get('/',async (req, res, next) => {
     }).catch(err => console.log(err))
 });
 
-//2-post
+//2-post new comment 
 router.post('/',(req, res) => {
     const body = req.body
 
@@ -53,7 +53,7 @@ router.post('/',(req, res) => {
         })
 })
 
-//3-get by id
+//3-get existing comment by object ID
 router.get('/:commentID', async (req, res) => {
     await Comment.findOne({ _id: req.params.commentID }, (err, comment) => {
         if (err) {
@@ -70,7 +70,7 @@ router.get('/:commentID', async (req, res) => {
 }
 )
 
-//4-update
+//4-update existing comment by object ID
 router.put('/:commentID', async (req, res) => {
     const body = req.body
 
@@ -110,7 +110,7 @@ router.put('/:commentID', async (req, res) => {
 })
 
 
-//5-delete
+//5-delete a comment through object ID
 router.delete('/:commentID',async (req, res) => {
     await Comment.findOneAndDelete({ _id: req.params.commentID }, (err, comment) => {
         if (err) {

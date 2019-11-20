@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User  = require('../models/users');
 
-// 1-Return all users
+// 1-get all users
 router.get('/', async (req, res, next) => {
 
     await User.find({}, (err, users) => {
@@ -20,7 +20,7 @@ router.get('/', async (req, res, next) => {
     }).catch(err => console.log(err))
 });
 
-//2-POST new user
+//2-post new user
 router.post('/',(req, res) => {
     const body = req.body
 
@@ -54,7 +54,7 @@ router.post('/',(req, res) => {
         })
 })
 
-//3-return user with certain userID
+//3-get a user by userID(username)
 router.get('/:userID', async(req, res) => {
     await User.findOne({ userID: req.params.userID }, (err, user) => {
         if (err) {
@@ -71,7 +71,7 @@ router.get('/:userID', async(req, res) => {
 }
 )
 
-//4-return user with certain object ID
+//4-get a user by object ID
 router.get('/userIDN/:_id', async(req, res) => {
     await User.findOne({ _id: req.params._id}, (err, user) => {
         if (err) {
@@ -91,9 +91,11 @@ router.get('/userIDN/:_id', async(req, res) => {
 //6-updating user info with certain object id
 router.patch('/:userID', (req, res) => {
     const body1 = req.body
-    const updateOps = {};
-    for(const ops of req.body){
-        updateOps[ops.propName]=ops.value;
+
+    // code for updating only the user info parameters that were changed by end users
+    const updateOps = {}; //create a empty array
+    for(const ops of req.body){ // loop through the inputs that were changed by end user if user did update any parameters
+        updateOps[ops.propName]=ops.value; //insert changed values into array correspsonding with every changed parameter of the prop name
     }
 
     if (!body1) {
@@ -103,13 +105,14 @@ router.patch('/:userID', (req, res) => {
         })
     }
 
-   User.update({ _id: req.params.userID },{$set:updateOps/*{
+   User.update({ _id: req.params.userID },{$set:updateOps //mongoose update method reads array and only updates parameters that are in the array only
+    /*{
         "firstName": req.body.firstName,
         "lastName": req.body.lastName,
         "userID": req.body.userID,
         "password": req.body.password,
-        "email": req.body.email
-    }*/}, (err) => {
+        "email": req.body.email }*/
+    }, (err) => {
         if (err) {
             console.log(err);
             return res.status(404).json({

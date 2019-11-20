@@ -124,7 +124,7 @@ router.put('/:postID', async(req, res) => {
     })
 })
 
-//7-deletes certain psot through ID
+//7-deletes certain post through ID
 router.delete('/:postID', async(req,res) => {
     await Post.findOneAndDelete({ _id: req.params.postID }, (err, post) => {
         if (err) {
